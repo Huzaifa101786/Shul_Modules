@@ -1,0 +1,270 @@
+﻿@page "/members"
+@using Shul_Modules.Models
+@using Shul_Modules.Services
+@inject MemberService MemberService
+@inject IJSRuntime JSRuntime
+
+<h3>Member Management</h3>
+
+<!-- Button to Open the Modal -->
+<button class="btn btn-primary" @onclick="OpenNewMemberModal">New Member</button>
+
+<!-- The Modal -->
+@if (showNewMemberModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@modalTitle</h5>
+                    <button type="button" class="btn-close" @onclick="CloseNewMemberModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="currentMember" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <!-- Member Form -->
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <InputText id="firstName" class="form-control" @bind-Value="currentMember.FName" />
+                            <ValidationMessage For="@(() => currentMember.FName)" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <InputText id="lastName" class="form-control" @bind-Value="currentMember.LName" />
+                            <ValidationMessage For="@(() => currentMember.LName)" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="hfName" class="form-label">Husband/Father Name</label>
+                            <InputText id="hfName" class="form-control" @bind-Value="currentMember.HFName" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="hlName" class="form-label">Husband/Father Last Name</label>
+                            <InputText id="hlName" class="form-control" @bind-Value="currentMember.HLName" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="ben" class="form-label">Beneficiary</label>
+                            <InputText id="ben" class="form-control" @bind-Value="currentMember.Ben" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="cyl" class="form-label">CYL</label>
+                            <InputText id="cyl" class="form-control" @bind-Value="currentMember.CYL" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <InputText id="phone" class="form-control" @bind-Value="currentMember.Phone" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <InputText id="email" class="form-control" @bind-Value="currentMember.Email" />
+                            <ValidationMessage For="@(() => currentMember.Email)" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <InputText id="address" class="form-control" @bind-Value="currentMember.Address" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">@submitButtonText</button>
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseNewMemberModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- List of Members -->
+<table class="table table-striped mt-4">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (paginatedMembers == null)
+        {
+            <tr>
+                <td colspan="6">Loading...</td>
+            </tr>
+        }
+        else if (!paginatedMembers.Any())
+        {
+            <tr>
+                <td colspan="6">No members available.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var member in paginatedMembers)
+            {
+                <tr>
+                    <td>@member.FName</td>
+                    <td>@member.LName</td>
+                    <td>@member.Phone</td>
+                    <td>@member.Email</td>
+                    <td>@member.Address</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-2" @onclick="() => OpenEditMemberModal(member)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDeleteMember(member.MemberId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<!-- Pagination Controls -->
+<div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-secondary" @onclick="PreviousPage" disabled="@(!HasPreviousPage)">Previous</button>
+    <span>Page @currentPage of @totalPages</span>
+    <button class="btn btn-secondary" @onclick="NextPage" disabled="@(!HasNextPage)">Next</button>
+</div>
+
+@code {
+    private List<Member>? members;
+    private List<Member>? paginatedMembers;
+    private Member currentMember = new Member();
+    private bool showNewMemberModal = false;
+    private string modalTitle = "New Member";
+    private string submitButtonText = "Save Member";
+
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages;
+    private bool HasNextPage => currentPage < totalPages;
+    private bool HasPreviousPage => currentPage > 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMembers();
+    }
+
+    private async Task LoadMembers()
+    {
+        members = await MemberService.GetMembersAsync();
+        totalPages = (int)Math.Ceiling(members.Count / (double)pageSize);
+        UpdatePaginatedMembers();
+    }
+
+    private void UpdatePaginatedMembers()
+    {
+        if (members == null) return;
+        paginatedMembers = members
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void OpenNewMemberModal()
+    {
+        currentMember = new Member(); // Clear the form
+        modalTitle = "New Member";
+        submitButtonText = "Save Member";
+        showNewMemberModal = true;
+    }
+
+    @*private void OpenEditMemberModal(Member member)
+    {
+        currentMember = new Member
+            {
+                MemberId = member.MemberId,
+                FName = member.FName,
+                LName = member.LName,
+                HFName = member.HFName,
+                HLName = member.HLName,
+                Ben = member.Ben,
+                CYL = member.CYL,
+                Phone = member.Phone,
+                Email = member.Email,
+                Address = member.Address
+            };
+        modalTitle = "Edit Member";
+        submitButtonText = "Update Member";
+        showNewMemberModal = true;
+    }*@
+    private async Task OpenEditMemberModal(Member member)
+    {
+        await InvokeAsync(() =>
+        {
+            currentMember = new Member
+                {
+                    MemberId = member.MemberId,
+                    FName = member.FName,
+                    LName = member.LName,
+                    HFName = member.HFName,
+                    HLName = member.HLName,
+                    Ben = member.Ben,
+                    CYL = member.CYL,
+                    Phone = member.Phone,
+                    Email = member.Email,
+                    Address = member.Address
+                };
+            modalTitle = "Edit Member";
+            submitButtonText = "Update Member";
+            showNewMemberModal = true;
+        });
+    }
+
+
+    private void CloseNewMemberModal()
+    {
+        showNewMemberModal = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (currentMember.MemberId == 0)
+        {
+            await MemberService.AddMemberAsync(currentMember);
+        }
+        else
+        {
+            await MemberService.UpdateMemberAsync(currentMember);
+        }
+
+        await LoadMembers(); // Refresh the list
+        showNewMemberModal = false; // Close the modal
+    }
+
+    private async Task ConfirmDeleteMember(int memberId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this member?");
+        if (confirmed)
+        {
+            await DeleteMember(memberId);
+        }
+    }
+
+    private async Task DeleteMember(int memberId)
+    {
+        await MemberService.DeleteMemberAsync(memberId);
+        await LoadMembers(); // Refresh the list
+    }
+
+    private void NextPage()
+    {
+        if (HasNextPage)
+        {
+            currentPage++;
+            UpdatePaginatedMembers();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (HasPreviousPage)
+        {
+            currentPage--;
+            UpdatePaginatedMembers();
+        }
+    }
+}
