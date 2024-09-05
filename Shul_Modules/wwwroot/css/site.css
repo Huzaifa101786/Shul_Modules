@@ -62,3 +62,90 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+/* Container for the chat module */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 80vh;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Message window - where all messages appear */
+.chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Message styling */
+.message {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    border-radius: 12px;
+    word-wrap: break-word;
+}
+
+.message-incoming {
+    align-self: flex-start;
+    background-color: #e0e0e0;
+}
+
+.message-outgoing {
+    align-self: flex-end;
+    background-color: #d1e7ff;
+}
+
+.message-sender {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.message-text {
+    font-size: 1rem;
+}
+
+/* Chat input area */
+.chat-input-container {
+    display: flex;
+    align-items: center; /* Vertically centers the textarea and button */
+    padding: 10px;
+    border-top: 1px solid #ccc;
+}
+
+.chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    resize: none;
+    font-size: 1rem;
+}
+
+.send-button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 10px;
+    height: 70%; 
+}
+
+    .send-button:hover {
+        background-color: #0056b3;
+    }
+

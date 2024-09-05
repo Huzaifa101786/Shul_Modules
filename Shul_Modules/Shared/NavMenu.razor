@@ -10,13 +10,18 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
             <NavLink class="nav-link" href="members">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Members
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="blasts" Match="NavLinkMatch.All">
+                <span class="oi oi-comment-square" aria-hidden="true"></span> Blasts
             </NavLink>
         </div>
         <div class="nav-item px-3">

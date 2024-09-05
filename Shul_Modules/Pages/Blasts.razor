@@ -1,0 +1,93 @@
+﻿@page "/blasts"
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.SignalR.Client
+
+<h3>Blasts Module</h3>
+
+<!-- Chat window container -->
+<div class="chat-container">
+    <!-- Chat messages window -->
+    <div class="chat-messages">
+        @foreach (var msg in messages)
+        {
+            <div class="message-sender">@msg.User</div>
+            <div class="message @GetMessageClass(msg.User)">
+                
+                <div class="message-text">@msg.Message</div>
+            </div>
+        }
+    </div>
+
+    <!-- New message input and button -->
+    <div class="chat-input-container" style="@(!isChatInputVisible ? "display: none;" : "")">
+        <textarea @bind="message" class="chat-input" style="width:85%" placeholder="Type your message here..." rows="2"></textarea>
+        <button class="send-button" @onclick="SendToAll">Send</button>
+    </div>
+
+    @if (!isChatInputVisible)
+    {
+        <button class="send-button"style="height:8%" @onclick="() => SendToAllShow()">Send to All</button>
+    }
+
+
+</div>
+
+@code {
+    private string message = "";
+    private bool isChatInputVisible = false;
+    private List<BlastMessage> messages = new List<BlastMessage>();
+
+    private HubConnection hubConnection;
+
+    // CSS class to differentiate user messages
+    private string GetMessageClass(string user) =>
+        user == "User" ? "message-outgoing" : "message-incoming";
+
+    private async Task SendToAllShow()
+    {
+        isChatInputVisible = true;
+    }
+
+    // Send message to all users through SignalR
+    private async Task SendToAll()
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            await hubConnection.SendAsync("SendMessageToAll", "User", message);
+            message = string.Empty;
+        }
+    }
+
+    // Set up the SignalR connection
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/blastshub"))
+            .Build();
+
+        await hubConnection.StartAsync();
+
+        // Listen for incoming messages from other users
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            messages.Add(new BlastMessage { User = user, Message = message });
+            InvokeAsync(StateHasChanged); // Update the UI
+        });
+    }
+
+    // Clean up SignalR connection when the component is disposed
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection != null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    // Class to store blast messages
+    private class BlastMessage
+    {
+        public string User { get; set; }
+        public string Message { get; set; }
+    }
+}

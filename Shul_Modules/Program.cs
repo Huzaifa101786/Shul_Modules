@@ -16,6 +16,8 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectio
 builder.Services.AddSingleton<WeatherForecastService>();
 // Register the MemberService
 builder.Services.AddScoped<MemberService>();
+builder.Services.AddSignalR();
+
 
 
 var app = builder.Build();
@@ -36,5 +38,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapHub<BlastsHub>("/blastshub");
 
 app.Run();
