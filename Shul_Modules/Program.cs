@@ -4,8 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Shul_Modules.Data;
 using Shul_Modules.Services;
 using QuestPDF.Infrastructure;
+using Auth0.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddAuth0WebAppAuthentication(options => {
+        options.Domain = builder.Configuration["Auth0:Domain"];
+        options.ClientId = builder.Configuration["Auth0:ClientId"];
+    });
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -37,6 +44,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication(); // ?? new code
+app.UseAuthorization();
+
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
