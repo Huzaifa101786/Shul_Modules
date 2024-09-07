@@ -149,3 +149,75 @@ a, .btn-link {
         background-color: #0056b3;
     }
 
+.title {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.input-text, .input-textarea, .input-number {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.input-textarea {
+    resize: none;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+    .checkbox-group label {
+        font-weight: normal;
+    }
+
+.generate-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+    .generate-btn:hover {
+        background-color: #45a049;
+    }
+
+
