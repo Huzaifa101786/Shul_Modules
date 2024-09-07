@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using Shul_Modules.Data;
 using Shul_Modules.Services;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +18,9 @@ builder.Services.AddSingleton<WeatherForecastService>();
 // Register the MemberService
 builder.Services.AddScoped<MemberService>();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<PdfService>();
 
-
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 

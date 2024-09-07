@@ -1,0 +1,23 @@
+﻿@page "/pdf-generator"
+@inject PdfService PdfService
+@inject IJSRuntime JS
+
+<h3>Generate a PDF</h3>
+
+<EditForm Model="this">
+    <InputText @bind-Value="userInput" placeholder="Enter some text for the PDF" />
+    <button type="button" @onclick="GeneratePdf">Generate and Download PDF</button>
+</EditForm>
+
+@code {
+    private string userInput = string.Empty;
+
+    private async Task GeneratePdf()
+    {
+        // Generate the PDF as a byte array
+        var pdfBytes = PdfService.GeneratePdf(userInput);
+
+        // Use JavaScript to trigger the download
+        await JS.InvokeVoidAsync("BlazorDownloadFile", "generated-document.pdf", "application/pdf", pdfBytes);
+    }
+}
